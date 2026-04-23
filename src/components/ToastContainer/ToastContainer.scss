@@ -1,0 +1,21 @@
+.toast-container {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+
+  >* {
+    pointer-events: all;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .toast-container {
+    right: 10px;
+    left: 10px;
+  }
+}

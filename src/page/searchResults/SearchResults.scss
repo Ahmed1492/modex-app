@@ -1,0 +1,109 @@
+.search-results-page {
+  min-height: calc(100vh - 70px);
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 3rem 3rem 5rem;
+
+  .search-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid #f0f0f0;
+
+    h2 {
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+
+      strong {
+        color: #2196f3;
+      }
+    }
+
+    .count {
+      color: #888;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+  }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 2rem;
+  }
+
+  .no-results {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 6rem 0;
+    text-align: center;
+
+    .no-results-icon {
+      font-size: 4rem;
+      opacity: 0.4;
+    }
+
+    p {
+      color: #555;
+      font-size: 1.1rem;
+      line-height: 1.6;
+
+      strong {
+        color: #1a1a1a;
+      }
+    }
+
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 32px;
+      background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+      color: white;
+      border-radius: 50px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(33, 150, 243, 0.3);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(33, 150, 243, 0.4);
+      }
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .search-results-page {
+    padding: 2rem 2rem 4rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-results-page {
+    padding: 1.5rem 1.5rem 3rem;
+
+    .results-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1.25rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .search-results-page {
+    padding: 1rem 1rem 2rem;
+
+    .results-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+  }
+}

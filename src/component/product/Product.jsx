@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import "./Product.scss";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import axios, { all } from "axios";
 import { MyContext } from "../../context/MyContext";
 import { NavBar } from "../navbar/NavBar";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,301 +8,300 @@ import { addToCart } from "../../redux/cartSlice";
 import { addToWishList, removeFromWishList } from "../../redux/wishListSlice";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
+import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
+import { ClipLoader } from "react-spinners";
+import { getProductById } from "../../mocks";
+import { useToastContext } from "../../context/ToastContext";
+import { useLanguage } from "../../context/LanguageContext";
+import { Footer } from "../Footer/Footer";
 
-const images = [
-  "https://images.pexels.com/photos/1656684/pexels-photo-1656684.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-
-  "https://images.pexels.com/photos/10026491/pexels-photo-10026491.png?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-];
+const ui = {
+  en: {
+    quantity: "Quantity",
+    addToCart: "ADD TO CART",
+    adding: "ADDING...",
+    addFav: "Add to Wishlist",
+    removeFav: "Remove from Wishlist",
+    oldPrice: "Original",
+    price: "Price",
+    shipping: "Free shipping on orders over 500 EGP",
+    returns: "Easy 30-day returns",
+    vendor: "Vendor",
+    type: "Product Type",
+    tag: "Tags",
+    description: "Description",
+    additionalInfo: "Additional Information",
+    faq: "FAQ",
+  },
+  ar: {
+    quantity: "الكمية",
+    addToCart: "أضف إلى السلة",
+    adding: "جاري الإضافة...",
+    addFav: "أضف للمفضلة",
+    removeFav: "إزالة من المفضلة",
+    oldPrice: "السعر الأصلي",
+    price: "السعر",
+    shipping: "شحن مجاني للطلبات فوق 500 جنيه",
+    returns: "إرجاع سهل خلال 30 يوماً",
+    vendor: "البائع",
+    type: "نوع المنتج",
+    tag: "الوسوم",
+    description: "الوصف",
+    additionalInfo: "معلومات إضافية",
+    faq: "الأسئلة الشائعة",
+  },
+};
 
 export const Product = () => {
-  const [price, setPrice] = useState(19.9);
-  const [totalPrice, setTotalPrice] = useState(0);
   const [currentImage, setCurrentImage] = useState(0);
   const [productQuantity, setProductQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
+  const [activeTab, setActiveTab] = useState("description");
   const { data, setData } = useContext(MyContext);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const param = useParams();
-  const [allProducts, setAllProducts] = useState([]);
-  const wishList = useSelector((state) => state.wishList); // get data using redux
+  const [product, setProduct] = useState({});
+  const wishList = useSelector((state) => state.wishList);
+  const { showCartToast, showFavoriteToast } = useToastContext();
+  const { lang } = useLanguage();
+  const tr = ui[lang];
 
-  const getProducts = async (link) => {
+  const displayTitle = lang === "ar" && product.title_ar ? product.title_ar : product.title;
+  const displayDescription = lang === "ar" && product.description_ar ? product.description_ar : product.description;
+
+  const discount = product.oldPrice && product.currentPrice
+    ? Math.round(((+product.oldPrice - +product.currentPrice) / +product.oldPrice) * 100)
+    : 0;
+
+  const getProducts = (category, type, id) => {
     try {
-      let myResponse = await axios.get(link);
-
-      const findIndexById = () => {
-        return myResponse?.data?.findIndex(
-          (product) => +product.id === +param.id
-        );
-      };
-      let index;
-      if (findIndexById() !== -1) {
-        index = findIndexById();
-      } else {
-        navigate("/notfound");
-      }
-      setAllProducts(myResponse.data[index]);
-    } catch (error) {
-      console.log(error);
+      const found = getProductById(category, type, id);
+      if (found) setProduct(found);
+      else navigate("/notfound");
+    } catch {
+      navigate("/notfound");
     }
   };
-  const truncateDecimal = (number, decimalPlaces) => {
-    const truncatedNumber = parseFloat(number.toFixed(decimalPlaces));
-    return truncatedNumber;
-  };
-  const increaseProduct = () => {
-    setProductQuantity(productQuantity < 100 ? productQuantity + 1 : 100);
-    productQuantity > 0
-      ? setTotalPrice(
-          Math.abs(truncateDecimal(price + price * productQuantity, 4))
-        )
-      : totalPrice === price
-      ? setTotalPrice(price)
-      : setTotalPrice(price);
-  };
-  const decreaseProduct = () => {
-    setProductQuantity(productQuantity > 1 ? productQuantity - 1 : 1);
-    setTotalPrice(
-      Math.abs(truncateDecimal(price - price * productQuantity, 4))
+
+  const increaseProduct = () => setProductQuantity((q) => Math.min(q + 1, 100));
+  const decreaseProduct = () => setProductQuantity((q) => Math.max(q - 1, 1));
+
+  const checkIfItemInWishList = () => {
+    const obj = { ...product, type: param.type, category: param.category };
+    const isCatWithType = ["men", "woman", "children"].includes(param.category);
+    return wishList.products.some((pro) =>
+      isCatWithType
+        ? pro.id === obj.id && pro.title === obj.title && pro.type === obj.type && pro.category === obj.category
+        : pro.id === obj.id && pro.title === obj.title && pro.category === obj.category
     );
   };
 
-  const checkIfItemInWishList = () => {
-    let newObj = { ...allProducts };
-    newObj.type = param.type;
-    newObj.category = param.category;
-    let result;
-    if (
-      param.category === "men" ||
-      param.category === "woman" ||
-      param.category === "children"
-    ) {
-      result = wishList.products.find(
-        (pro) =>
-          pro.id === newObj.id &&
-          pro.title === newObj.title &&
-          pro.type === newObj.type &&
-          pro.category === newObj.category
-      );
-    } else {
-      result = wishList.products.find(
-        (pro) =>
-          pro.id === newObj.id &&
-          pro.title === newObj.title &&
-          pro.category === newObj.category
-      );
-    }
-
-    if (result) return true;
-    return false;
-  };
-
   const handleAddToCart = () => {
-    dispatch(addToCart({ ...allProducts, productQuantity, totalPrice }));
+    setIsAddingToCart(true);
+    dispatch(addToCart({ ...product, productQuantity, totalPrice: +product.currentPrice * productQuantity }));
+    showCartToast(product.title || "Product");
+    setTimeout(() => setIsAddingToCart(false), 600);
   };
 
-  const handleAddToWishList = () => {
-    if (checkIfItemInWishList()) {
-      dispatch(
-        removeFromWishList({
-          ...allProducts,
-          category: param.category,
-          type: param.type,
-        })
-      );
+  const handleToggleWishList = () => {
+    setIsTogglingFavorite(true);
+    const inList = checkIfItemInWishList();
+    const payload = { ...product, category: param.category, type: param.type };
+    if (inList) {
+      dispatch(removeFromWishList(payload));
+      showFavoriteToast(product.title || "Product", false);
     } else {
-      dispatch(
-        addToWishList({
-          ...allProducts,
-          category: param.category,
-          type: param.type,
-        })
-      );
+      dispatch(addToWishList(payload));
+      showFavoriteToast(product.title || "Product", true);
     }
+    setTimeout(() => setIsTogglingFavorite(false), 600);
   };
 
   const handleWrongPath = () => {
-    if (
-      param.type !== "shirts" &&
-      param.type !== "Jackets" &&
-      param.type !== "hat" &&
-      param.type !== "shoes" &&
-      param.type !== "accessories" &&
-      param.type !== "pullover" &&
-      param.type !== "undefined"
-    ) {
-      navigate("/notfound");
-    }
+    const validTypes = ["shirts", "Jackets", "hat", "shoes", "accessories", "pullover", "undefined"];
+    if (param.type && !validTypes.includes(param.type)) navigate("/notfound");
   };
 
   const handleGettingData = () => {
     if (param.type === "undefined") {
       navigate(`/product/${param.category}/shirts/${param.id}`);
-    } else if (param.category === "men") {
-      if (param.type === "shirts") {
-        getProducts("https://dummyjson.com/c/4f8c-21a2-455b-83b4");
-      } else if (param.type === "Jackets") {
-        getProducts("https://dummyjson.com/c/baef-4d4d-4af1-b815");
-      } else if (param.type === "hat") {
-        getProducts("https://dummyjson.com/c/b27c-1138-4efd-9e98");
-      } else if (param.type === "shoes") {
-        getProducts("https://dummyjson.com/c/1e1b-e1d6-47f8-b526");
-      } else if (param.type === "accessories") {
-        getProducts("https://dummyjson.com/c/931b-922a-4ee3-9c5e");
-      } else if (param.type === "pullover") {
-        getProducts("https://dummyjson.com/c/3fda-ad04-4d58-8ad6");
-      }
-    } else if (param.category === "woman") {
-      if (param.type === "shirts") {
-        getProducts("https://dummyjson.com/c/9245-5cdb-47b5-a951");
-      } else if (param.type === "Jackets") {
-        getProducts("https://dummyjson.com/c/6e51-2973-419b-931d");
-      } else if (param.type === "hat") {
-        getProducts("https://dummyjson.com/c/3e2d-e47d-4a87-86e1");
-      } else if (param.type === "shoes") {
-        getProducts("https://dummyjson.com/c/a939-0caa-4dce-acfd"); //k
-      } else if (param.type === "accessories") {
-        getProducts("https://dummyjson.com/c/0b52-c6b5-4df9-a10a");
-      } else if (param.type === "pullover") {
-        getProducts("https://dummyjson.com/c/510b-02e8-41cf-bb22");
-      }
-    } else if (param.category === "children") {
-      if (param.type === "shirts") {
-        getProducts("https://dummyjson.com/c/df38-baf7-4c19-a834");
-      } else if (param.type === "Jackets") {
-        getProducts("https://dummyjson.com/c/0256-3a1c-4b10-92ca");
-      } else if (param.type === "hat") {
-        getProducts("https://dummyjson.com/c/2f5d-5618-46da-8ba8");
-      } else if (param.type === "shoes") {
-        getProducts("https://dummyjson.com/c/4f2a-8829-4a0e-b6c8");
-      } else if (param.type === "accessories") {
-        getProducts("https://dummyjson.com/c/3ec2-a926-4b41-9a4e");
-      }
-    } else if (param.category === "accessories") {
-      getProducts("https://dummyjson.com/c/11b5-d830-4fe4-9ffc");
-    } else if (param.category === "newSesson") {
-      getProducts("https://dummyjson.com/c/7494-5008-4b89-9542");
-    } else if (param.category === "sale") {
-      getProducts("https://dummyjson.com/c/05ec-cd4d-4d6d-bbda");
-    } else if (param.category === "bags") {
-      getProducts("https://dummyjson.com/c/f6e2-e4aa-461d-b0fd");
-    } else if (param.category === "trending") {
-      getProducts("https://dummyjson.com/c/eef5-3303-460c-8904");
-    } else if (param.category === "featured") {
-      getProducts("https://dummyjson.com/c/5295-3a93-495f-84a1");
-    } else if (param.category === "trending") {
-      getProducts("https://dummyjson.com/c/81f9-5dd6-4bf1-b477");
+      return;
+    }
+    const cats = ["men", "woman", "children", "accessories", "newSesson", "sale", "bags", "trending", "featured"];
+    if (cats.includes(param.category)) {
+      getProducts(param.category, param.type, param.id);
     } else {
       navigate("/notfound");
     }
   };
 
   useEffect(() => {
+    setCurrentImage(0);
+    setProductQuantity(1);
     setData(param.type);
-    if (param.type) {
-      handleWrongPath();
-    }
+    if (param.type) handleWrongPath();
     handleGettingData();
   }, [param.category, param.id, param.type]);
+
+  const breadcrumb = (
+    <div className="pagePath">
+      <Link to="/">Home</Link>
+      <span>/</span>
+      <Link to={`/products/${param.category}`}>{param.category}</Link>
+      {param.type && param.type !== "undefined" && (
+        <>
+          <span>/</span>
+          <Link to={`/products/${param.category}`}>{param.type}</Link>
+        </>
+      )}
+      {displayTitle && (
+        <>
+          <span>/</span>
+          <span className="current">{displayTitle}</span>
+        </>
+      )}
+    </div>
+  );
 
   return (
     <>
       <NavBar />
       <div className="singleProduct">
-        {param.category === "men" ||
-        param.category === "woman" ||
-        param.category === "children" ? (
-          <div className="pagePath">
-            product /
-            <Link to={`/products/${param.category}`}> {param.category} </Link> /
-            <Link to={`/products/${param.category}`}>{param.type}</Link>/
-            <p>{allProducts.title}</p>
-          </div>
-        ) : (
-          <div className="pagePath">
-            <Link to="/">HomePage</Link> /<Link> {param.category} </Link> /
-            <p>{allProducts.title}</p>
-          </div>
-        )}
-        <div className="container">
-          <div className="left">
-            <div className="sliderImage">
-              <div className="images">
-                {allProducts?.images?.map((img, index) => (
-                  <img
-                    key={index}
-                    className={
-                      index === currentImage ? "selectedSmallImage" : ""
-                    }
-                    src={img}
-                    onClick={() => setCurrentImage(index)}
-                    alt=""
-                  />
+        {breadcrumb}
+
+        {Object.keys(product).length > 0 ? (
+          <div className="container">
+            {/* ── LEFT: images ── */}
+            <div className="left">
+              <div className="thumbnails">
+                {product.images?.map((img, i) => (
+                  <button
+                    key={i}
+                    className={`thumb ${i === currentImage ? "active" : ""}`}
+                    onClick={() => setCurrentImage(i)}
+                  >
+                    <img src={img} alt={`view ${i + 1}`} />
+                  </button>
                 ))}
               </div>
               <div className="mainImage">
+                {discount > 0 && <span className="badge">-{discount}%</span>}
                 <img
-                  className={
-                    param.category === "accessories" ? "imageContain" : ""
-                  }
-                  src={allProducts.images && allProducts?.images[currentImage]}
-                  alt=""
+                  className={param.category === "accessories" ? "contain" : ""}
+                  src={product.images?.[currentImage]}
+                  alt={displayTitle}
                 />
               </div>
             </div>
-          </div>
-          <div className="right">
-            <div className="details">
-              <h3>{allProducts.title}</h3>
-              <div>
-                <del>Price : {allProducts?.oldPrice} EGP</del>
-                <span>Price :{allProducts?.currentPrice} EGP</span>
-              </div>
-              <p>{allProducts?.description}</p>
-            </div>
 
-            <div className="addToCart">
-              <div className="quantityOfProduct">
-                <p>Quantity: </p>
-                <div className="settingsOfNumber">
-                  <button onClick={decreaseProduct}>-</button>
-                  <span className="totlaNumberOfProduct">
-                    {productQuantity}
-                  </span>
-                  <button onClick={increaseProduct}>+</button>
+            {/* ── RIGHT: info ── */}
+            <div className="right">
+              <h1 className="product-title">{displayTitle}</h1>
+
+              {/* Price */}
+              <div className="price-row">
+                <span className="current-price">{product.currentPrice} EGP</span>
+                {product.oldPrice && (
+                  <del className="old-price">{product.oldPrice} EGP</del>
+                )}
+                {discount > 0 && (
+                  <span className="discount-badge">Save {discount}%</span>
+                )}
+              </div>
+
+              {/* Description */}
+              <p className="short-desc">{displayDescription}</p>
+
+              <div className="divider" />
+
+              {/* Quantity */}
+              <div className="quantity-row">
+                <span className="qty-label">{tr.quantity}</span>
+                <div className="qty-control">
+                  <button onClick={decreaseProduct} disabled={productQuantity <= 1}>−</button>
+                  <span>{productQuantity}</span>
+                  <button onClick={increaseProduct} disabled={productQuantity >= 100}>+</button>
                 </div>
               </div>
 
-              <button onClick={handleAddToCart} className="addToCart">
-                ADD TO CART
-              </button>
-              <div className="buyLater">
-                <Link onClick={handleAddToWishList}>
-                  {checkIfItemInWishList() ? (
-                    <FavoriteIcon className="wishIcone" />
-                  ) : (
-                    <FavoriteBorderIcon className="wishIcone" />
+              {/* Actions */}
+              <div className="actions">
+                <button
+                  className={`btn-cart ${isAddingToCart ? "adding" : ""}`}
+                  onClick={handleAddToCart}
+                  disabled={isAddingToCart}
+                >
+                  <ShoppingCartIcon />
+                  {isAddingToCart ? tr.adding : tr.addToCart}
+                </button>
+                <button
+                  className={`btn-wish ${checkIfItemInWishList() ? "active" : ""} ${isTogglingFavorite ? "toggling" : ""}`}
+                  onClick={handleToggleWishList}
+                  title={checkIfItemInWishList() ? tr.removeFav : tr.addFav}
+                >
+                  {checkIfItemInWishList()
+                    ? <FavoriteIcon />
+                    : <FavoriteBorderIcon />}
+                </button>
+              </div>
+
+              {/* Perks */}
+              <div className="perks">
+                <div className="perk">
+                  <LocalShippingOutlinedIcon />
+                  <span>{tr.shipping}</span>
+                </div>
+                <div className="perk">
+                  <VerifiedOutlinedIcon />
+                  <span>{tr.returns}</span>
+                </div>
+              </div>
+
+              <div className="divider" />
+
+              {/* Meta */}
+              <div className="meta">
+                <p><strong>{tr.vendor}:</strong> Polo</p>
+                <p><strong>{tr.type}:</strong> {param.type || param.category}</p>
+                <p><strong>{tr.tag}:</strong> Fashion, {param.category}</p>
+              </div>
+
+              {/* Tabs */}
+              <div className="tabs">
+                <div className="tab-headers">
+                  {["description", "additionalInfo", "faq"].map((tab) => (
+                    <button
+                      key={tab}
+                      className={activeTab === tab ? "active" : ""}
+                      onClick={() => setActiveTab(tab)}
+                    >
+                      {tr[tab]}
+                    </button>
+                  ))}
+                </div>
+                <div className="tab-content">
+                  {activeTab === "description" && <p>{displayDescription}</p>}
+                  {activeTab === "additionalInfo" && (
+                    <p>{lang === "ar" ? "لا توجد معلومات إضافية متاحة حالياً." : "No additional information available."}</p>
                   )}
-                </Link>
-                <Link onClick={checkIfItemInWishList}> ADD TO FAVOURITE </Link>
-              </div>
-            </div>
-            <div className="description">
-              <div className="top">
-                <p>Vendor : Polo</p>
-                <p>Product Type : T-Shirt</p>
-                <p>Tag : T-Shirt ,Women ,Top</p>
-              </div>
-              <div className="bottom">
-                <span>DESCRIPTION</span>
-                <span>ADDITIONAL INFORMATION</span>
-                <p>FAQ</p>
+                  {activeTab === "faq" && (
+                    <p>{lang === "ar" ? "لا توجد أسئلة شائعة حالياً." : "No FAQs available yet."}</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="loader">
+            <ClipLoader speedMultiplier={2} color="#2196f3" size={40} />
+          </div>
+        )}
       </div>
+      <Footer />
     </>
   );
 };

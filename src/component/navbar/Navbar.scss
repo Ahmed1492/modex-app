@@ -1,258 +1,611 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// NAVBAR
+// ─────────────────────────────────────────────────────────────────────────────
+
+$blue: #2196f3;
+$dark: #1a1a1a;
+$muted: #666;
+$border: #f0f0f0;
+$h: 68px;
+
 .navbar {
-
-  .currentLink {
-    border-bottom: 4px solid #2196f3;
-    color: #2196f3;
-    font-weight: 600;
-  }
-
-  padding: 10px 20px;
   position: sticky;
   top: 0;
   z-index: 9999;
-  background-color: #ffff;
+  background: #fff;
+  border-bottom: 1px solid $border;
+  box-shadow: 0 1px 12px rgba(0, 0, 0, .06);
+}
 
-  a {
+// ── Wrapper ───────────────────────────────────────────────────────────────────
+.nb-wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 2.5rem;
+  height: $h;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+// ── Logo ──────────────────────────────────────────────────────────────────────
+.nb-logo {
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: $dark;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: color .25s;
+
+  &:hover {
+    color: $blue;
+  }
+}
+
+// ── Center nav ────────────────────────────────────────────────────────────────
+.nb-nav {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .25rem;
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+.nb-link {
+  position: relative;
+  padding: .45rem .7rem;
+  font-size: .875rem;
+  font-weight: 500;
+  color: $muted;
+  text-decoration: none;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: color .2s, background .2s;
+
+  &:hover {
+    color: $blue;
+    background: rgba($blue, .06);
+  }
+
+  // active underline
+  &.active-cat,
+  &.active-page {
+    color: $blue;
+    font-weight: 600;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60%;
+      height: 2px;
+      background: $blue;
+      border-radius: 1px;
+    }
+  }
+}
+
+// Divider between page links and shop links
+.nb-divider {
+  width: 1px;
+  height: 18px;
+  background: #e0e0e0;
+  margin: 0 .5rem;
+  flex-shrink: 0;
+}
+
+// Sale badge link
+.nb-sale {
+  background: #ff4757;
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: .8rem !important;
+  letter-spacing: .6px;
+  text-transform: uppercase;
+  padding: .4rem .9rem !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 8px rgba(255, 71, 87, .35);
+  transition: all .25s !important;
+
+  &:hover {
+    background: #ff2f3a !important;
+    color: #fff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(255, 71, 87, .45) !important;
+  }
+
+  &.active-cat {
+    background: #e53935 !important;
+
+    &::after {
+      display: none;
+    }
+  }
+}
+
+// ── Right actions ─────────────────────────────────────────────────────────────
+.nb-actions {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  flex-shrink: 0;
+}
+
+// Generic icon button
+.nb-icon-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: transparent;
+  color: #555;
+  cursor: pointer;
+  transition: color .2s, background .2s, transform .2s;
+  text-decoration: none;
+  flex-shrink: 0;
+
+  svg {
+    font-size: 22px;
+  }
+
+  &:hover {
+    color: $blue;
+    background: rgba($blue, .08);
+    transform: translateY(-1px);
+  }
+
+  &.active-page {
+    color: $blue;
+    background: rgba($blue, .1);
+  }
+}
+
+// ── Language button ───────────────────────────────────────────────────────────
+.nb-lang {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  height: 36px;
+  width: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all .25s;
+  color: #444;
+
+  &:hover {
+    border-color: $blue;
+    background: #fff;
+    color: $blue;
+    transform: none;
+  }
+
+  .nb-flag {
+    display: flex;
+    align-items: center;
+
+    img,
+    svg {
+      width: 22px;
+      height: 15px;
+      border-radius: 2px;
+      object-fit: cover;
+    }
+  }
+
+  .nb-lang-code {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+
+  .nb-lang-arrow {
+    font-size: 16px !important;
+    opacity: .6;
+  }
+}
+
+// ── Search form (expanded) ────────────────────────────────────────────────────
+.nb-search-form {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f5f7fa;
+  border: 2px solid #e9ecef;
+  border-radius: 24px;
+  padding: 6px 12px;
+  transition: all .25s;
+
+  &:focus-within {
+    border-color: $blue;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba($blue, .1);
+  }
+
+  .nb-search-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: .9rem;
+    width: 200px;
+    color: $dark;
+
+    &::placeholder {
+      color: #aaa;
+    }
+  }
+
+  .nb-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+
+    svg {
+      font-size: 18px;
+    }
+  }
+}
+
+// ── Badge ─────────────────────────────────────────────────────────────────────
+.nb-badge-wrap {
+  overflow: visible;
+}
+
+.nb-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid #fff;
+  pointer-events: none;
+
+  &.nb-badge-pink {
+    background: #e91e63;
+  }
+
+  &.nb-badge-blue {
+    background: $blue;
+  }
+}
+
+// ── User avatar button ────────────────────────────────────────────────────────
+.nb-user-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, $blue 0%, #1976d2 100%) !important;
+  color: #fff !important;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba($blue, .35);
+    background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%) !important;
+  }
+
+  .nb-avatar {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .5px;
+    text-transform: uppercase;
+  }
+}
+
+// ── User dropdown ─────────────────────────────────────────────────────────────
+.nb-user-wrap {
+  position: relative;
+}
+
+.nb-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 230px;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .12);
+  overflow: hidden;
+  animation: nbDropIn .2s ease-out;
+  z-index: 100;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: 0;
+  }
+
+  .nb-dropdown-header {
+    padding: 16px 18px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #f0f0f0;
+
+    .nb-dropdown-name {
+      font-size: .95rem;
+      font-weight: 700;
+      color: $dark;
+      margin-bottom: 3px;
+    }
+
+    .nb-dropdown-email {
+      font-size: .8rem;
+      color: $muted;
+    }
+  }
+
+  .nb-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 18px;
+    font-size: .875rem;
+    font-weight: 500;
+    color: #444;
+    background: none;
+    border: none;
+    cursor: pointer;
     text-decoration: none;
+    transition: background .15s, color .15s;
+
+    svg {
+      font-size: 18px;
+    }
 
     &:hover {
-      color: #2196f3;
+      background: #f5f7fa;
+      color: $blue;
     }
   }
 
+  .nb-dropdown-logout:hover {
+    color: #e53935;
+  }
+}
 
-  ul {
+@keyframes nbDropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+// ── Hamburger (hidden on desktop) ─────────────────────────────────────────────
+.nb-hamburger {
+  display: none;
+}
+
+// ── Mobile menu ───────────────────────────────────────────────────────────────
+.nb-mobile {
+  display: none;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .35s ease;
+  border-top: 1px solid $border;
+  background: #fff;
+
+  &.open {
+    max-height: 600px;
+  }
+
+  .nb-mobile-inner {
+    padding: 1rem 1.5rem 1.5rem;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 2rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: .25rem;
+  }
 
-    li {
-      list-style: none;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+  .nb-mobile-link {
+    padding: .75rem 1rem;
+    font-size: .95rem;
+    font-weight: 500;
+    color: $muted;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all .2s;
 
-      a {
-        font-size: 19px;
-      }
+    &:hover,
+    &.active-cat,
+    &.active-page {
+      color: $blue;
+      background: rgba($blue, .06);
+      font-weight: 600;
     }
   }
 
-  .wrapper {
+  .nb-mobile-sale {
+    color: #ff4757 !important;
+    font-weight: 700 !important;
+
+    &:hover {
+      background: rgba(255, 71, 87, .08) !important;
+    }
+  }
+
+  .nb-mobile-sep {
+    height: 1px;
+    background: $border;
+    margin: .5rem 0;
+  }
+
+  .nb-mobile-search {
     display: flex;
+    gap: 8px;
+    margin-top: .5rem;
+
+    input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: .9rem;
+      outline: none;
+
+      &:focus {
+        border-color: $blue;
+      }
+    }
+
+    button {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      border: none;
+      background: $blue;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+
+      svg {
+        font-size: 20px;
+      }
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RESPONSIVE
+// ─────────────────────────────────────────────────────────────────────────────
+
+@media (max-width: 1280px) {
+  .nb-wrapper {
+    padding: 0 2rem;
+    gap: 1.5rem;
+  }
+
+  .nb-nav {
+    gap: .1rem;
+  }
+
+  .nb-link {
+    padding: .4rem .55rem;
+    font-size: .82rem;
+  }
+}
+
+@media (max-width: 1100px) {
+  .nb-wrapper {
+    padding: 0 1.5rem;
+    gap: 1rem;
+  }
+
+  .nb-link {
+    font-size: .8rem;
+    padding: .4rem .5rem;
+  }
+
+  .nb-divider {
+    margin: 0 .25rem;
+  }
+}
+
+// Tablet — hide center nav, show hamburger
+@media (max-width: 900px) {
+  .nb-nav {
+    display: none;
+  }
+
+  .nb-hamburger {
+    display: flex;
+  }
+
+  .nb-mobile {
+    display: block;
+  }
+
+  .nb-wrapper {
+    padding: 0 1.25rem;
     justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
+  }
 
+  .nb-logo {
+    font-size: 1.4rem;
+  }
 
-    .item {
-      display: flex;
-      align-items: center;
-      font-size: 18px;
-      flex-wrap: wrap;
+  .nb-search-form .nb-search-input {
+    width: 160px;
+  }
+}
 
+@media (max-width: 600px) {
+  .nb-wrapper {
+    padding: 0 1rem;
+    gap: .5rem;
+  }
 
+  .nb-logo {
+    font-size: 1.25rem;
+    letter-spacing: 2px;
+  }
+
+  .nb-lang {
+    padding: 0 8px;
+
+    .nb-lang-code {
+      display: none;
     }
 
-    .left {
-      display: flex;
-      gap: 2rem;
-      align-items: center;
-      flex-wrap: wrap;
-
-
-
+    .nb-lang-arrow {
+      display: none;
     }
+  }
 
-    .center {
-      font-size: 30px;
-      letter-spacing: 3px;
+  .nb-icon-btn {
+    width: 38px;
+    height: 38px;
+
+    svg {
+      font-size: 20px;
     }
+  }
 
-    .right {
-      display: flex;
-      gap: 2rem;
-      align-items: center;
-      flex-wrap: wrap;
+  .nb-user-btn {
+    width: 36px;
+    height: 36px;
+  }
 
-      ul {
-        flex-wrap: wrap;
-      }
-    }
+  .nb-search-form {
+    padding: 5px 10px;
 
-    .icons {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      color: #777;
-      flex-wrap: wrap;
-
-      .cartIcone,
-      .wishListIcone {
-        position: relative;
-        cursor: pointer;
-
-        span {
-          position: absolute;
-          left: 12px;
-          font-size: 13px;
-          color: #fff;
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          background-color: #2879fe;
-          text-align: center;
-          top: -8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-
-      }
-
-      .wishListIcone {
-        color: #777;
-
-        span {
-          left: -8px !important;
-          background-color: #e91e63;
-
-        }
-      }
+    .nb-search-input {
+      width: 130px;
+      font-size: .85rem;
     }
   }
 }
 
-@media only screen and (max-width: 1382px) {
-
-  .navbar {
-    position: static;
-
-    .wrapper {
-      .center {
-        margin: 19px;
-      }
-
-      .right {
-        justify-content: center;
-        align-items: center;
-        margin: auto;
-      }
-    }
+@media (max-width: 400px) {
+  .nb-lang {
+    display: none;
   }
-}
 
-@media only screen and (max-width: 738px) {
-
-  .navbar {
-    position: static;
-
-    .wrapper {
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-
-      .left {
-
-        .navbar ul {
-          justify-content: center !important;
-          padding: 0 !important;
-          flex-direction: column;
-        }
-      }
-
-
-
-      .right {
-        justify-content: center;
-        align-items: center;
-        margin: auto;
-      }
-    }
-  }
-}
-
-@media only screen and (max-width: 738px) {
-
-  .navbar {
-    .wrapper {
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-
-      .center {
-        margin: auto;
-        display: flex;
-        justify-content: center;
-        display: none;
-      }
-
-      .right {
-        justify-content: center;
-        align-items: center;
-        margin: auto;
-      }
-    }
-  }
-}
-
-@media only screen and (max-width: 528px) {
-
-  .navbar {
-    margin-right: 18px !important;
-
-    ul {
-      justify-content: space-between !important;
-      align-items: center;
-    }
-
-
-    .wrapper {
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-
-      .center {
-        display: none !important;
-      }
-
-      .right {
-        justify-content: center;
-        align-items: center;
-        margin: auto;
-      }
-    }
-  }
-}
-
-@media only screen and (max-width: 344px) {
-
-  .navbar {
-    margin-right: 28px !important;
-
-    ul {
-      justify-content: space-between !important;
-      align-items: center;
-    }
-
-
-    .wrapper {
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-
-      .center {
-        display: none !important;
-      }
-
-      .right {
-        justify-content: center;
-        align-items: center;
-        margin: auto;
-      }
-    }
+  .nb-logo {
+    font-size: 1.1rem;
   }
 }

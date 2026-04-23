@@ -1,0 +1,125 @@
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+}
+
+@keyframes progressBar {
+  from {
+    width: 100%;
+  }
+
+  to {
+    width: 0%;
+  }
+}
+
+.toast {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  min-width: 300px;
+  max-width: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  padding: 16px 20px;
+  z-index: 10000;
+  animation: slideInRight 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  overflow: hidden;
+
+  &.toast-cart {
+    border-left: 4px solid #2196f3;
+
+    .toast-icon {
+      color: #2196f3;
+      background: rgba(33, 150, 243, 0.1);
+    }
+
+    .toast-progress {
+      background: #2196f3;
+    }
+  }
+
+  &.toast-favorite {
+    border-left: 4px solid #e91e63;
+
+    .toast-icon {
+      color: #e91e63;
+      background: rgba(233, 30, 99, 0.1);
+    }
+
+    .toast-progress {
+      background: #e91e63;
+    }
+  }
+
+  .toast-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .toast-icon {
+      font-size: 28px;
+      padding: 8px;
+      border-radius: 50%;
+      animation: scaleIn 0.3s ease;
+    }
+
+    .toast-message {
+      font-size: 15px;
+      font-weight: 500;
+      color: #333;
+      flex: 1;
+    }
+  }
+
+  .toast-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    animation: progressBar 3s linear;
+  }
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .toast {
+    right: 10px;
+    left: 10px;
+    min-width: auto;
+    max-width: none;
+  }
+}

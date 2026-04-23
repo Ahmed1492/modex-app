@@ -1,32 +1,43 @@
-import axios from "axios";
 import "./ProductCategoru.scss";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { NavBar } from "../navbar/NavBar";
+import { Footer } from "../Footer/Footer";
 import { MyContext } from "../../context/MyContext";
 import { SortByPrice } from "../sortByPrice/SortByPrice";
 import { FilterByPrice } from "../filterByPrice/FilterByPrice";
+import { ClipLoader } from "react-spinners";
+import { getProductsByCategory } from "../../mocks";
+import { useLanguage } from "../../context/LanguageContext";
 
 export const ProductCategory = () => {
+  // ========== CONTEXT & HOOKS ==========
   const { data } = useContext(MyContext);
-  const [allProducts, setAllProducts] = useState([]);
-  const [currentPrice, setCurrentPrice] = useState(500);
-  const [isFilterByPriceMode, setIsFilterByPriceMode] = useState(false);
-  const [isSortByPriceMode, setIsSortByPriceMode] = useState(null);
-  const [selectedItem, setSelectedItem] = useState("shirts");
-  const filterNavbarRef = useRef(null);
-  const footerRef = useRef(null);
-  const [isFixed, setIsFixed] = useState(true);
+  const { lang } = useLanguage();
   const param = useParams();
   const navigate = useNavigate();
 
+  // ========== STATE MANAGEMENT ==========
+  const [allProducts, setAllProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [selectedItem, setSelectedItem] = useState("shirts");
+  const [selectedFilters, setSelectedFilters] = useState(["shirts"]);
+
+  // Filter states
+  const [currentPrice, setCurrentPrice] = useState(500);
+  const [isFilterByPriceMode, setIsFilterByPriceMode] = useState(false);
+  const [isSortByPriceMode, setIsSortByPriceMode] = useState(null);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12);
+
+  // ========== CONSTANTS ==========
   const bgImages = {
     men: "https://images.pexels.com/photos/432059/pexels-photo-432059.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    woman:
-      "https://img.freepik.com/free-photo/close-up-portrait-pretty-blonde-woman-wearing-straw-hat-boho-outfit_291049-100.jpg?t=st=1730213092~exp=1730216692~hmac=f613821c0f8ae8023d6dd11ca15e83b47f477c0f6bf78d528cb316700784a5a0&w=1380",
+    woman: "https://images.pexels.com/photos/1727684/pexels-photo-1727684.jpeg",
     children:
-      "https://img.freepik.com/free-photo/group-beautiful-girls-boys-pastel-wall_155003-10578.jpg?t=st=1730214185~exp=1730217785~hmac=35b7c9d75036ed34d3e402271d5642bda4cfae79a91cc696a78b5b966028c0f9&w=1380",
-
+      "https://images.pexels.com/photos/1620760/pexels-photo-1620760.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
     newSesson:
       "https://images.pexels.com/photos/3875430/pexels-photo-3875430.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
     bags: "https://images.pexels.com/photos/2977304/pexels-photo-2977304.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
@@ -35,104 +46,260 @@ export const ProductCategory = () => {
       "https://images.pexels.com/photos/322207/pexels-photo-322207.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
   };
 
-  const getProducts = async (link) => {
-    try {
-      let myResponse = await axios.get(link);
-      setAllProducts(myResponse?.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const filterProducts = (checkboxValue) => {
-    console.log(" checkboxValue ", checkboxValue);
-    setSelectedItem(checkboxValue);
-
-    setIsSortByPriceMode(null);
-    setIsFilterByPriceMode(false);
-    if (param.category === "men") {
-      if (checkboxValue === "shirts") {
-        getProducts("https://dummyjson.com/c/4f8c-21a2-455b-83b4");
-      } else if (checkboxValue === "Jackets") {
-        getProducts("https://dummyjson.com/c/baef-4d4d-4af1-b815");
-      } else if (checkboxValue === "hat") {
-        getProducts("https://dummyjson.com/c/b27c-1138-4efd-9e98");
-      } else if (checkboxValue === "shoes") {
-        getProducts("https://dummyjson.com/c/1e1b-e1d6-47f8-b526"); // k
-      } else if (checkboxValue === "accessories") {
-        getProducts("https://dummyjson.com/c/931b-922a-4ee3-9c5e");
-      } else if (checkboxValue === "pullover") {
-        getProducts("https://dummyjson.com/c/3fda-ad04-4d58-8ad6");
-      }
-    }
-    if (param.category === "woman") {
-      if (checkboxValue === "shirts") {
-        getProducts("https://dummyjson.com/c/9245-5cdb-47b5-a951");
-      } else if (checkboxValue === "Jackets") {
-        getProducts("https://dummyjson.com/c/6e51-2973-419b-931d");
-      } else if (checkboxValue === "hat") {
-        getProducts("https://dummyjson.com/c/3e2d-e47d-4a87-86e1");
-      } else if (checkboxValue === "shoes") {
-        getProducts("https://dummyjson.com/c/a939-0caa-4dce-acfd"); //k
-      } else if (checkboxValue === "accessories") {
-        getProducts("https://dummyjson.com/c/0b52-c6b5-4df9-a10a");
-      } else if (checkboxValue === "pullover") {
-        getProducts("https://dummyjson.com/c/510b-02e8-41cf-bb22");
-      }
-    }
-    if (param.category === "children") {
-      if (checkboxValue === "shirts") {
-        getProducts("https://dummyjson.com/c/df38-baf7-4c19-a834");
-      } else if (checkboxValue === "Jackets") {
-        getProducts("https://dummyjson.com/c/0256-3a1c-4b10-92ca");
-      } else if (checkboxValue === "hat") {
-        getProducts("https://dummyjson.com/c/2f5d-5618-46da-8ba8");
-      } else if (checkboxValue === "shoes") {
-        getProducts("https://dummyjson.com/c/4f2a-8829-4a0e-b6c8");
-      } else if (checkboxValue === "accessories") {
-        getProducts("https://dummyjson.com/c/3ec2-a926-4b41-9a4e");
-      }
-    }
-  };
-
-  const handleCheckboxChange = (event) => {
-    const { value, checked } = event.target;
-    setSelectedItem(checked ? value : "");
-    filterProducts(value);
-
-    console.log("vvv", value);
-    console.log("selectedItem :", selectedItem);
-  };
+  // ========== UTILITY FUNCTIONS ==========
+  const t = (item) =>
+    lang === "ar" && item.title_ar ? item.title_ar : item.title;
 
   const truncateString = (str) => {
     return str.length > 30 ? str.slice(0, 30) : str;
+  };
+
+  const checkIsCategoryHasType = () => {
+    return ["men", "woman", "children"].includes(param.category);
+  };
+
+  const getDiscountPercentage = (oldPrice, currentPrice) => {
+    const discount = ((+oldPrice - +currentPrice) / oldPrice) * 100;
+    return `save ${Math.round(discount)}% `;
+  };
+
+  const getAvailableFilters = () => {
+    if (param.category === "men" || param.category === "woman") {
+      return ["shirts", "Jackets", "pullover", "hat", "shoes", "accessories"];
+    } else if (param.category === "children") {
+      return ["shirts", "Jackets", "hat", "shoes", "accessories"];
+    }
+    return [];
+  };
+
+  // ========== DATA FETCHING ==========
+  const getProducts = (category, type) => {
+    try {
+      const products = getProductsByCategory(category, type);
+      console.log("getProducts called with:", { category, type });
+      console.log("Products returned:", products);
+      console.log("Products length:", products?.length);
+      setAllProducts(products);
+    } catch (error) {
+      console.log("Error in getProducts:", error);
+      setAllProducts([]);
+    }
+  };
+
+  // ========== FILTER HANDLERS ==========
+  const handleCheckboxChange = (event) => {
+    const { value, checked } = event.target;
+    let newSelectedFilters = [...selectedFilters];
+
+    if (checked) {
+      if (!newSelectedFilters.includes(value)) {
+        newSelectedFilters.push(value);
+      }
+    } else {
+      newSelectedFilters = newSelectedFilters.filter(
+        (filter) => filter !== value,
+      );
+    }
+
+    setSelectedFilters(newSelectedFilters);
+
+    if (newSelectedFilters.length === 0) {
+      setFilteredProducts([]);
+      setSelectedItem("");
+    } else {
+      // Get products for all selected filters and combine them
+      let combinedProducts = [];
+      newSelectedFilters.forEach((filter) => {
+        const products = getProductsByCategory(param.category, filter);
+        combinedProducts = [...combinedProducts, ...products];
+      });
+
+      // Remove duplicates based on product id
+      const uniqueProducts = combinedProducts.filter(
+        (product, index, self) =>
+          index === self.findIndex((p) => p.id === product.id),
+      );
+
+      setFilteredProducts(uniqueProducts);
+      setSelectedItem(newSelectedFilters[0]); // Set first selected as main
+    }
+
+    setCurrentPage(1); // Reset to first page
+    setIsSortByPriceMode(null);
+    setIsFilterByPriceMode(false);
+  };
+
+  const handleClearAllFilters = () => {
+    setSelectedFilters([]);
+    setFilteredProducts([]);
+    setSelectedItem("");
+    setCurrentPrice(500);
+    setIsFilterByPriceMode(false);
+    setIsSortByPriceMode(null);
+    setCurrentPage(1);
+  };
+
+  const handleSelectAllFilters = () => {
+    const availableFilters = getAvailableFilters();
+    setSelectedFilters(availableFilters);
+
+    // Get products for all filters and combine them
+    let combinedProducts = [];
+    availableFilters.forEach((filter) => {
+      const products = getProductsByCategory(param.category, filter);
+      combinedProducts = [...combinedProducts, ...products];
+    });
+
+    // Remove duplicates
+    const uniqueProducts = combinedProducts.filter(
+      (product, index, self) =>
+        index === self.findIndex((p) => p.id === product.id),
+    );
+
+    setFilteredProducts(uniqueProducts);
+    setSelectedItem(availableFilters[0]);
+    setCurrentPage(1);
   };
 
   const handleFilterByPrice = (e) => {
     setCurrentPrice(e.target.value);
     setIsFilterByPriceMode(true);
     setIsSortByPriceMode(null);
+    setCurrentPage(1);
   };
 
   const handleSortByPrice = (e) => {
     setIsFilterByPriceMode(false);
     setIsSortByPriceMode(e.target.value);
+    setCurrentPage(1);
   };
 
-  const checkIsCategoryHasType = () => {
-    if (
-      param.category === "men" ||
-      param.category === "woman" ||
-      param.category === "children"
-    )
-      return true;
+  // ========== PAGINATION LOGIC ==========
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = (
+    filteredProducts.length > 0 ? filteredProducts : allProducts
+  ).slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(
+    (filteredProducts.length > 0 ? filteredProducts : allProducts).length /
+      itemsPerPage,
+  );
 
-    return false;
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const getDiscountPercentage = (oldPrice, currentPrice) => {
-    const discount = ((+oldPrice - +currentPrice) / oldPrice) * 100;
-    return `save ${Math.round(discount)}% `;
+  const renderPagination = () => {
+    const pages = [];
+    const maxVisiblePages = 5;
+
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage < maxVisiblePages - 1) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    // Previous button
+    if (currentPage > 1) {
+      pages.push(
+        <button
+          key="prev"
+          onClick={() => handlePageChange(currentPage - 1)}
+          className="pagination-btn"
+        >
+          &laquo; Prev
+        </button>,
+      );
+    }
+
+    // First page
+    if (startPage > 1) {
+      pages.push(
+        <button
+          key={1}
+          onClick={() => handlePageChange(1)}
+          className="pagination-btn"
+        >
+          1
+        </button>,
+      );
+      if (startPage > 2) {
+        pages.push(
+          <span key="dots1" className="pagination-dots">
+            ...
+          </span>,
+        );
+      }
+    }
+
+    // Page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(
+        <button
+          key={i}
+          onClick={() => handlePageChange(i)}
+          className={`pagination-btn ${currentPage === i ? "active" : ""}`}
+        >
+          {i}
+        </button>,
+      );
+    }
+
+    // Last page
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        pages.push(
+          <span key="dots2" className="pagination-dots">
+            ...
+          </span>,
+        );
+      }
+      pages.push(
+        <button
+          key={totalPages}
+          onClick={() => handlePageChange(totalPages)}
+          className="pagination-btn"
+        >
+          {totalPages}
+        </button>,
+      );
+    }
+
+    // Next button
+    if (currentPage < totalPages) {
+      pages.push(
+        <button
+          key="next"
+          onClick={() => handlePageChange(currentPage + 1)}
+          className="pagination-btn"
+        >
+          Next &raquo;
+        </button>,
+      );
+    }
+
+    return pages;
+  };
+
+  // ========== LEGACY FUNCTIONS (TO BE REFACTORED) ==========
+  const filterProducts = (checkboxValue) => {
+    console.log(" checkboxValue ", checkboxValue);
+    setSelectedItem(checkboxValue);
+    setCurrentPage(1);
+    setIsSortByPriceMode(null);
+    setIsFilterByPriceMode(false);
+
+    const categoryHandlers = {
+      men: () => getProducts(param.category, checkboxValue),
+      woman: () => getProducts(param.category, checkboxValue),
+      children: () => getProducts(param.category, checkboxValue),
+    };
+
+    if (categoryHandlers[param.category]) {
+      categoryHandlers[param.category]();
+    }
   };
 
   const handleGettingData = () => {
@@ -141,93 +308,104 @@ export const ProductCategory = () => {
     }
     console.log("selectedItem", selectedItem);
 
-    if (param.category === "men") {
-      if (selectedItem === "shirts") {
-        getProducts("https://dummyjson.com/c/4f8c-21a2-455b-83b4");
-      } else if (selectedItem === "Jackets") {
-        getProducts("https://dummyjson.com/c/baef-4d4d-4af1-b815");
-      } else if (selectedItem === "hat") {
-        getProducts("https://dummyjson.com/c/b27c-1138-4efd-9e98");
-      } else if (selectedItem === "shoes") {
-        getProducts("https://dummyjson.com/c/1e1b-e1d6-47f8-b526"); // k
-      } else if (selectedItem === "accessories") {
-        getProducts("https://dummyjson.com/c/931b-922a-4ee3-9c5e");
-      } else if (selectedItem === "pullover") {
-        getProducts("https://dummyjson.com/c/3fda-ad04-4d58-8ad6");
-      }
-    } else if (param.category === "woman") {
-      if (selectedItem === "shirts") {
-        getProducts("https://dummyjson.com/c/9245-5cdb-47b5-a951");
-      } else if (selectedItem === "Jackets") {
-        getProducts("https://dummyjson.com/c/6e51-2973-419b-931d");
-      } else if (selectedItem === "hat") {
-        getProducts("https://dummyjson.com/c/3e2d-e47d-4a87-86e1");
-      } else if (selectedItem === "shoes") {
-        getProducts("https://dummyjson.com/c/a939-0caa-4dce-acfd"); //k
-      } else if (selectedItem === "accessories") {
-        getProducts("https://dummyjson.com/c/0b52-c6b5-4df9-a10a");
-      } else if (selectedItem === "pullover") {
-        getProducts("https://dummyjson.com/c/510b-02e8-41cf-bb22");
-      }
-    } else if (param.category === "children") {
-      if (selectedItem === "shirts") {
-        getProducts("https://dummyjson.com/c/df38-baf7-4c19-a834");
-      } else if (selectedItem === "Jackets") {
-        getProducts("https://dummyjson.com/c/0256-3a1c-4b10-92ca");
-      } else if (selectedItem === "hat") {
-        getProducts("https://dummyjson.com/c/2f5d-5618-46da-8ba8");
-      } else if (selectedItem === "shoes") {
-        getProducts("https://dummyjson.com/c/4f2a-8829-4a0e-b6c8");
-      } else if (selectedItem === "accessories") {
-        getProducts("https://dummyjson.com/c/3ec2-a926-4b41-9a4e");
-      } else if (selectedItem === "pullover") {
-        getProducts("https://dummyjson.com/c/df38-baf7-4c19-a834");
-        setSelectedItem("shirts");
-      }
-    } else if (param.category === "accessories") {
-      getProducts("https://dummyjson.com/c/11b5-d830-4fe4-9ffc");
-    } else if (param.category === "newSesson") {
-      getProducts("https://dummyjson.com/c/7494-5008-4b89-9542");
-    } else if (param.category === "sale") {
-      getProducts("https://dummyjson.com/c/05ec-cd4d-4d6d-bbda");
-    } else if (param.category === "bags") {
-      getProducts("https://dummyjson.com/c/f6e2-e4aa-461d-b0fd");
+    // Reset filtered products when getting new data
+    setFilteredProducts([]);
+
+    const categoryRoutes = {
+      men: () => getProducts(param.category, selectedItem),
+      woman: () => getProducts(param.category, selectedItem),
+      children: () => getProducts(param.category, selectedItem),
+      accessories: () => getProducts(param.category, null),
+      newSesson: () => getProducts(param.category, null),
+      sale: () => getProducts(param.category, null),
+      bags: () => getProducts(param.category, null),
+    };
+
+    if (categoryRoutes[param.category]) {
+      categoryRoutes[param.category]();
     } else {
       navigate("/notfound");
     }
   };
 
+  // ========== EFFECTS ==========
   useEffect(() => {
-    handleGettingData();
-  }, [param.category, data]);
+    // Reset all state when category changes
+    const resetState = () => {
+      setSelectedFilters(["shirts"]);
+      setFilteredProducts([]);
+      setSelectedItem("shirts");
+      setCurrentPrice(500);
+      setIsFilterByPriceMode(false);
+      setIsSortByPriceMode(null);
+      setCurrentPage(1);
+    };
+
+    resetState();
+
+    // Load initial data based on category
+    setTimeout(() => {
+      if (
+        param.category === "men" ||
+        param.category === "woman" ||
+        param.category === "children"
+      ) {
+        getProducts(param.category, "shirts");
+      } else if (param.category === "accessories") {
+        getProducts(param.category, null);
+      } else if (param.category === "newSesson") {
+        getProducts(param.category, null);
+      } else if (param.category === "sale") {
+        getProducts(param.category, null);
+      } else if (param.category === "bags") {
+        getProducts(param.category, null);
+      } else {
+        navigate("/notfound");
+      }
+    }, 0);
+  }, [param.category]);
 
   return (
     <>
       <NavBar />
-      <div className="productCategory">
+      <div className="productCategory" key={param.category}>
         <div className="container">
           <div className="wrapper">
             <div className="leftSide">
-              <div
-                ref={filterNavbarRef}
-                style={{
-                  position: isFixed ? "fixed" : "absolute",
-                  top: isFixed ? "80px" : "auto",
-                  bottom: isFixed ? "auto" : "20px", // Adjust this as needed
-                }}
-                className="allFilters"
-              >
+              <div className="allFilters">
                 {(param.category === "men" ||
                   param.category === "woman" ||
                   param.category === "children") && (
                   <>
-                    <h3>Product Category</h3>
+                    <div className="filter-header">
+                      <h3>Product Category</h3>
+                      <div className="filter-actions">
+                        <button
+                          className="filter-action-btn select-all"
+                          onClick={handleSelectAllFilters}
+                          disabled={
+                            selectedFilters.length ===
+                            getAvailableFilters().length
+                          }
+                        >
+                          Select All
+                        </button>
+                        <button
+                          className="filter-action-btn clear-all"
+                          onClick={handleClearAllFilters}
+                          disabled={selectedFilters.length === 0}
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                    </div>
+
                     <div className="filterItem">
                       <input
                         value="shirts"
                         id="t-SHIRT"
                         type="checkbox"
-                        checked={selectedItem === "shirts"}
+                        checked={selectedFilters.includes("shirts")}
                         onChange={handleCheckboxChange}
                       />
                       <label htmlFor="t-SHIRT">T-SHIRT</label>
@@ -238,7 +416,7 @@ export const ProductCategory = () => {
                         value="Jackets"
                         id="Jackets"
                         type="checkbox"
-                        checked={selectedItem === "Jackets"}
+                        checked={selectedFilters.includes("Jackets")}
                         onChange={handleCheckboxChange}
                       />
                       <label htmlFor="Jackets">Jacket</label>
@@ -250,7 +428,7 @@ export const ProductCategory = () => {
                           value="pullover"
                           id="pullover"
                           type="checkbox"
-                          checked={selectedItem === "pullover"}
+                          checked={selectedFilters.includes("pullover")}
                           onChange={handleCheckboxChange}
                         />
                         <label htmlFor="pullover">pullover</label>
@@ -262,7 +440,7 @@ export const ProductCategory = () => {
                         value="hat"
                         id="hat"
                         type="checkbox"
-                        checked={selectedItem === "hat"}
+                        checked={selectedFilters.includes("hat")}
                         onChange={handleCheckboxChange}
                       />
                       <label htmlFor="hat">Hat</label>
@@ -273,7 +451,7 @@ export const ProductCategory = () => {
                         value="shoes"
                         id="shoes"
                         type="checkbox"
-                        checked={selectedItem === "shoes"}
+                        checked={selectedFilters.includes("shoes")}
                         onChange={handleCheckboxChange}
                       />
                       <label htmlFor="shoes">Shoes</label>
@@ -284,7 +462,7 @@ export const ProductCategory = () => {
                         value="accessories"
                         id="accessories"
                         type="checkbox"
-                        checked={selectedItem === "accessories"}
+                        checked={selectedFilters.includes("accessories")}
                         onChange={handleCheckboxChange}
                       />
                       <label htmlFor="accessories">Accessories</label>
@@ -325,92 +503,161 @@ export const ProductCategory = () => {
               </div>
             </div>
 
-            {isFilterByPriceMode ? (
-              <FilterByPrice
-                allProducts={allProducts}
-                bgImages={bgImages}
-                param={param}
-                truncateString={truncateString}
-                selectedItem={selectedItem}
-                price={currentPrice}
-                getDiscountPercentage={getDiscountPercentage}
-              />
-            ) : isSortByPriceMode ? (
-              <SortByPrice
-                allProducts={allProducts}
-                bgImages={bgImages}
-                param={param}
-                truncateString={truncateString}
-                selectedItem={selectedItem}
-                price={currentPrice}
-                isSortByPriceMode={isSortByPriceMode}
-                setAllProducts={setAllProducts}
-                getDiscountPercentage={getDiscountPercentage}
-              />
-            ) : (
-              <div className="rightSide">
-                <div className="image">
-                  <img
-                    className="image-filter"
-                    src={bgImages[param.category]}
-                    alt=""
+            {allProducts.length > 0 ? (
+              <>
+                {isFilterByPriceMode ? (
+                  <FilterByPrice
+                    allProducts={allProducts}
+                    bgImages={bgImages}
+                    param={param}
+                    truncateString={truncateString}
+                    selectedItem={selectedItem}
+                    price={currentPrice}
+                    getDiscountPercentage={getDiscountPercentage}
+                    currentPage={currentPage}
+                    itemsPerPage={itemsPerPage}
+                    totalPages={totalPages}
+                    handlePageChange={handlePageChange}
+                    renderPagination={renderPagination}
                   />
-                </div>
-                <div className="filteredCards">
-                  {allProducts?.map((item, index) => (
-                    <Link
-                      key={index}
-                      to={`/product/${param.category}/${
-                        checkIsCategoryHasType() ? selectedItem + "/" : ""
-                      }${+item.id}`}
-                    >
-                      {param.category == "newSesson" && (
-                        <div className="newSessonLogo">
-                          <p>NEW</p>
-                        </div>
-                      )}
-                      {param.category == "sale" && (
-                        <div className="saleLogo">
-                          <p>Sale</p>
-                        </div>
-                      )}
-                      <div key={item.id} className="images">
-                        {item.images.length > 1 ? (
-                          <>
-                            <img
-                              className="img1"
-                              src={item?.images[0]}
-                              alt=""
-                            />
-                            <img
-                              className="img2"
-                              src={item?.images[1]}
-                              alt=""
-                            />
-                          </>
-                        ) : (
-                          <img className="img" src={item?.images[0]} alt="" />
-                        )}
-                      </div>
-                      <p className="proTitle">{truncateString(item.title)}</p>
-                      <div className="price">
-                        <del>{item.oldPrice} EGP</del>
-                        <p>{item.currentPrice} EGP</p>
-                        <p className="discount">
-                          {getDiscountPercentage(
-                            +item.oldPrice,
-                            +item.currentPrice
-                          )}
+                ) : isSortByPriceMode ? (
+                  <SortByPrice
+                    allProducts={allProducts}
+                    bgImages={bgImages}
+                    param={param}
+                    truncateString={truncateString}
+                    selectedItem={selectedItem}
+                    price={currentPrice}
+                    isSortByPriceMode={isSortByPriceMode}
+                    setAllProducts={setAllProducts}
+                    getDiscountPercentage={getDiscountPercentage}
+                    currentPage={currentPage}
+                    itemsPerPage={itemsPerPage}
+                    totalPages={totalPages}
+                    handlePageChange={handlePageChange}
+                    renderPagination={renderPagination}
+                  />
+                ) : (
+                  <div className="rightSide">
+                    <div className="cat-hero">
+                      <div
+                        className="cat-hero-bg"
+                        style={{ backgroundImage: `url(${bgImages[param.category]})` }}
+                      />
+                      <div className="cat-hero-overlay" />
+                      <div className="cat-hero-content">
+                        <span className="cat-hero-tag">
+                          {param.category === "newSesson"
+                            ? (lang === "ar" ? "✨ موسم جديد" : "✨ New Season")
+                            : param.category === "sale"
+                            ? (lang === "ar" ? "🔥 تخفيضات" : "🔥 Sale")
+                            : (lang === "ar" ? "🛍️ تسوق الآن" : "🛍️ Shop Now")}
+                        </span>
+                        <h1 className="cat-hero-title">
+                          {lang === "ar"
+                            ? { men: "رجال", woman: "نساء", children: "أطفال", bags: "حقائب", newSesson: "موسم جديد", sale: "تخفيضات", accessories: "إكسسوارات" }[param.category] || param.category
+                            : param.category.charAt(0).toUpperCase() + param.category.slice(1).replace("Sesson", " Season")}
+                        </h1>
+                        <p className="cat-hero-count">
+                          {(filteredProducts.length > 0 ? filteredProducts : allProducts).length}{" "}
+                          {lang === "ar" ? "منتج" : "products"}
                         </p>
                       </div>
-                    </Link>
-                  ))}
-                </div>
+                    </div>
+                    <div className="filteredCards">
+                      {currentItems?.map((item, index) => {
+                        return (
+                          <Link
+                            key={index}
+                            className="card-item"
+                            to={`/product/${param.category}/${
+                              checkIsCategoryHasType() ? selectedItem + "/" : ""
+                            }${+item.id}`}
+                          >
+                            {param.category === "newSesson" && (
+                              <span className="badge badge-new">NEW</span>
+                            )}
+                            {param.category === "sale" && (
+                              <span className="badge badge-sale">Sale</span>
+                            )}
+                            <div className="images">
+                              {item.images && item.images.length > 1 ? (
+                                <>
+                                  <img
+                                    className="img1"
+                                    src={item?.images[0]}
+                                    alt={t(item)}
+                                  />
+                                  <img
+                                    className="img2"
+                                    src={item?.images[1]}
+                                    alt={t(item)}
+                                  />
+                                </>
+                              ) : (
+                                <img
+                                  className="img"
+                                  src={item?.images?.[0]}
+                                  alt={t(item)}
+                                />
+                              )}
+                            </div>
+                            <div className="card-info">
+                              <p className="proTitle">
+                                {truncateString(t(item))}
+                              </p>
+                              <div className="price">
+                                <del>{item.oldPrice} EGP</del>
+                                <p>{item.currentPrice} EGP</p>
+                                <p className="discount">
+                                  {getDiscountPercentage(
+                                    +item.oldPrice,
+                                    +item.currentPrice,
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="pagination-container">
+                        <div className="pagination">{renderPagination()}</div>
+                        <div className="pagination-info">
+                          Showing {indexOfFirstItem + 1} -{" "}
+                          {Math.min(
+                            indexOfLastItem,
+                            (filteredProducts.length > 0
+                              ? filteredProducts
+                              : allProducts
+                            ).length,
+                          )}{" "}
+                          of{" "}
+                          {
+                            (filteredProducts.length > 0
+                              ? filteredProducts
+                              : allProducts
+                            ).length
+                          }{" "}
+                          products
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="loader">
+                <ClipLoader color="#2196f3" speedMultiplier={2} size={40} />
               </div>
             )}
           </div>
         </div>
       </div>
+      <Footer />
     </>
   );
 };

@@ -1,5 +1,289 @@
-header {
-  position: sticky;
-  top: 0;
-  background-color: red;
+.about-page {
+
+  // ── Hero ──────────────────────────────────────
+  .about-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 380px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="p" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23p)"/></svg>');
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+
+      h1 {
+        font-size: clamp(2.5rem, 6vw, 4rem);
+        font-weight: 900;
+        color: white;
+        margin-bottom: 1.5rem;
+        letter-spacing: -1px;
+      }
+
+      p {
+        font-size: clamp(1rem, 2vw, 1.25rem);
+        color: rgba(255, 255, 255, 0.8);
+        line-height: 1.7;
+      }
+    }
+  }
+
+  // ── Stats ─────────────────────────────────────
+  .about-stats {
+    background: #2196f3;
+    padding: 3rem 2rem;
+
+    .stats-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      text-align: center;
+
+      .stat-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        .stat-value {
+          font-size: clamp(2rem, 4vw, 2.75rem);
+          font-weight: 900;
+          color: white;
+          line-height: 1;
+        }
+
+        .stat-label {
+          font-size: 0.95rem;
+          color: rgba(255, 255, 255, 0.8);
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  // ── Story ─────────────────────────────────────
+  .about-story {
+    padding: 6rem 2rem;
+    background: white;
+
+    .story-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+
+      .story-image {
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        aspect-ratio: 4/5;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.6s ease;
+
+          &:hover {
+            transform: scale(1.03);
+          }
+        }
+      }
+
+      .story-text {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+
+        h2 {
+          font-size: clamp(1.75rem, 3vw, 2.5rem);
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.5px;
+        }
+
+        p {
+          color: #555;
+          font-size: 1.05rem;
+          line-height: 1.8;
+        }
+
+        .mission-box {
+          background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+          border-left: 4px solid #2196f3;
+          border-radius: 0 12px 12px 0;
+          padding: 1.5rem;
+
+          [dir="rtl"] & {
+            border-left: none;
+            border-right: 4px solid #2196f3;
+            border-radius: 12px 0 0 12px;
+          }
+
+          h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+          }
+
+          p {
+            color: #374151;
+            font-size: 0.95rem;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+
+  // ── Values ────────────────────────────────────
+  .about-values {
+    background: #f8f9fa;
+    padding: 6rem 2rem;
+
+    .values-container {
+      max-width: 1100px;
+      margin: 0 auto;
+
+      h2 {
+        font-size: clamp(1.75rem, 3vw, 2.5rem);
+        font-weight: 800;
+        color: #1a1a1a;
+        text-align: center;
+        margin-bottom: 3.5rem;
+      }
+
+      .values-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2rem;
+
+        .value-card {
+          background: white;
+          border-radius: 16px;
+          padding: 2rem 1.5rem;
+          text-align: center;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+          transition: all 0.3s ease;
+          border: 1px solid #f0f0f0;
+
+          &:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(33, 150, 243, 0.15);
+            border-color: #2196f3;
+          }
+
+          .value-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+          }
+
+          h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 0.75rem;
+          }
+
+          p {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.6;
+          }
+        }
+      }
+    }
+  }
+
+  // ── CTA ───────────────────────────────────────
+  .about-cta {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 5rem 2rem;
+    text-align: center;
+
+    h2 {
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 800;
+      color: white;
+      margin-bottom: 2rem;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 16px 48px;
+      background: white;
+      color: #667eea;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+
+      &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
+      }
+    }
+  }
+}
+
+// ── Responsive ────────────────────────────────────
+@media (max-width: 1024px) {
+  .about-page {
+    .about-story .story-container {
+      gap: 3rem;
+    }
+
+    .about-values .values-container .values-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .about-page {
+    .about-stats .stats-container {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .about-story .story-container {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+
+      .story-image {
+        aspect-ratio: 16/9;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .about-page {
+    .about-stats .stats-container {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+    }
+
+    .about-values .values-container .values-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 }

@@ -1,88 +1,91 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useLanguage } from "../../context/LanguageContext";
 
 export const SortByPrice = ({
-  allProducts,
-  bgImages,
-  param,
-  truncateString,
-  selectedItem,
-  price,
-  isSortByPriceMode,
-  getDiscountPercentage,
+  allProducts, bgImages, param, truncateString, selectedItem,
+  isSortByPriceMode, getDiscountPercentage, currentPage, itemsPerPage, renderPagination
 }) => {
   const [sortedProducts, setSortedProducts] = useState([]);
+  const { lang } = useLanguage();
+  const t = (item) => (lang === "ar" && item.title_ar ? item.title_ar : item.title);
 
-  // Ensures all price values are parsed consistently to numbers
-  const parsePrice = (price) => {
-    return parseFloat(price.trim().replace(/,/g, ""));
-  };
+  const parsePrice = (p) => parseFloat(String(p).trim().replace(/,/g, ""));
 
   const handleSort = () => {
     const sorted = [...allProducts].sort((a, b) => {
-      const priceA = parsePrice(a.currentPrice);
-      const priceB = parsePrice(b.currentPrice);
-
-      // Handle sorting by comparing parsed numeric values
-      if (isSortByPriceMode === "Price Highest First") {
-        return +priceB - +priceA;
-      } else if (isSortByPriceMode === "Price Lowest First") {
-        return priceA - priceB;
-      }
-
-      return 0; // Default case if sort mode is invalid
+      const pA = parsePrice(a.currentPrice);
+      const pB = parsePrice(b.currentPrice);
+      if (isSortByPriceMode === "Price Hiest First") return pB - pA;
+      if (isSortByPriceMode === "Price Lowest First") return pA - pB;
+      return 0;
     });
-
     setSortedProducts(sorted);
   };
 
-  useEffect(() => {
-    handleSort();
-  }, [allProducts, isSortByPriceMode]);
+  useEffect(() => { handleSort(); }, [allProducts, isSortByPriceMode]);
+
+  const checkIsCategoryHasType = () => ["men", "woman", "children"].includes(param.category);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = sortedProducts.slice(indexOfFirstItem, indexOfLastItem);
+  const sortedTotalPages = Math.ceil(sortedProducts.length / itemsPerPage);
 
   return (
     <div className="rightSide">
-      <div className="image">
-        <img className="image-filter" src={bgImages[param.category]} alt="" />
+      <div className="cat-hero">
+        <div className="cat-hero-bg" style={{ backgroundImage: `url(${bgImages[param.category]})` }} />
+        <div className="cat-hero-overlay" />
+        <div className="cat-hero-content">
+          <span className="cat-hero-tag">
+            {param.category === "sale" ? "🔥 Sale" : param.category === "newSesson" ? "✨ New Season" : "🛍️ Shop Now"}
+          </span>
+          <h1 className="cat-hero-title">
+            {param.category.charAt(0).toUpperCase() + param.category.slice(1).replace("Sesson", " Season")}
+          </h1>
+          <p className="cat-hero-count">{sortedProducts.length} products</p>
+        </div>
       </div>
       <div className="filteredCards">
-        {sortedProducts?.map((item, index) => (
+        {currentItems?.map((item, index) => (
           <Link
             key={index}
-            to={`/product/${param.category}/${selectedItem}/${item.id}`}
+            className="card-item"
+            to={`/product/${param.category}/${checkIsCategoryHasType() ? selectedItem + "/" : ""}${item.id}`}
           >
-            {param.category == "newSesson" && (
-              <div className="newSessonLogo">
-                <p>NEW</p>
-              </div>
-            )}
-
-            {param.category == "sale" && (
-              <div className="saleLogo">
-                <p>Sale</p>
-              </div>
-            )}
-            <div key={item.id} className="images">
-              {item.images.length > 1 ? (
+            {param.category === "newSesson" && <span className="badge badge-new">NEW</span>}
+            {param.category === "sale" && <span className="badge badge-sale">Sale</span>}
+            <div className="images">
+              {item.images && item.images.length > 1 ? (
                 <>
-                  <img className="img1" src={item?.images[0]} alt="" />
-                  <img className="img2" src={item?.images[1]} alt="" />
+                  <img className="img1" src={item?.images[0]} alt={t(item)} />
+                  <img className="img2" src={item?.images[1]} alt={t(item)} />
                 </>
               ) : (
-                <img className="img" src={item?.images[0]} alt="" />
+                <img className="img" src={item?.images?.[0]} alt={t(item)} />
               )}
             </div>
-            <p className="proTitle">{truncateString(item.title)}</p>
-            <div className="price">
-              <del>{item.oldPrice} EGP</del>
-              <p>{item.currentPrice} EGP</p>
-              <p className="discount">
-                {getDiscountPercentage(+item.oldPrice, +item.currentPrice)}
-              </p>
+            <div className="card-info">
+              <p className="proTitle">{truncateString(t(item))}</p>
+              <div className="price">
+                <del>{item.oldPrice} EGP</del>
+                <p>{item.currentPrice} EGP</p>
+                <p className="discount">{getDiscountPercentage(+item.oldPrice, +item.currentPrice)}</p>
+              </div>
             </div>
           </Link>
         ))}
       </div>
+
+      {sortedProducts?.length > 0 && sortedTotalPages > 1 && (
+        <div className="pagination-container">
+          <div className="pagination">{renderPagination()}</div>
+          <div className="pagination-info">
+            Showing {indexOfFirstItem + 1}–{Math.min(indexOfLastItem, sortedProducts.length)} of {sortedProducts.length}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

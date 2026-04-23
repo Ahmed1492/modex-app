@@ -1,18 +1,56 @@
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;500;600;700&display=swap");
-.app {
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700&display=swap");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
   margin: 0;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  padding: 0;
+}
+
+body {
   font-family: "Open Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  color: #1a1a1a;
+  background: #fff;
 }
+
+.app {
+  min-height: 100vh;
+}
+
+/* ── Global page wrapper ── */
+/* Use this class on any page's root div to get consistent side padding */
+.page-wrapper {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 3rem;
+}
+
+@media (max-width: 1024px) {
+  .page-wrapper { padding: 0 2rem; }
+}
+@media (max-width: 600px) {
+  .page-wrapper { padding: 0 1rem; }
+}
+
+/* ── Utilities ── */
 .link {
   color: inherit;
+  text-decoration: none;
 }
 
 a {
   text-decoration: none;
 }
+
 li {
   list-style: none;
+}
+
+/* ── RTL font ── */
+[dir="rtl"] {
+  font-family: "Segoe UI", Tahoma, Arial, "Open Sans", sans-serif;
 }
