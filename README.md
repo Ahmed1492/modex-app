@@ -31,6 +31,14 @@ A modern full-stack e-commerce fashion store built with React.js.
 
 ---
 
+## 🚀 Live Demo  
+
+[![Live Demo](https://img.shields.io/badge/View%20Live-Vercel-blue?style=for-the-badge&logo=vercel)](https://modex-app-git-main-ahmed1492s-projects.vercel.app/)
+
+
+
+---
+
 ## 🚀 Deploy to GitHub Pages
 
 ### 1. Install dependencies
